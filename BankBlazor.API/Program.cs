@@ -12,6 +12,15 @@ builder.Services.AddControllers ();
 builder.Services.AddEndpointsApiExplorer ();
 builder.Services.AddSwaggerGen ();
 
+
+//Metod för att iggnorera cirkulär referens i Json-serialisering
+//TAS BORT SENARE NÄR DTO ÄR SKAPADE!!!!
+builder.Services.AddControllers ().AddJsonOptions (options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler =
+        System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+});
+
 var app = builder.Build ();
 
 // Configure the HTTP request pipeline.
