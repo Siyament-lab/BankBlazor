@@ -1,6 +1,7 @@
 ﻿using BankBlazor.API.Data;
 using BankBlazor.API.Entities;
 using BankBlazor.API.Services;
+using BankBlazor.API.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -51,7 +52,7 @@ namespace BankBlazor.API.Controllers
 
         // POST, deposit
         [HttpPost ("deposit")]
-        public async Task<ActionResult> Deposit ( [FromBody] DepositWithdrawDto request )
+        public async Task<ActionResult> Deposit ( [FromBody] DepositDto request )
         {
             var account = await _context.Accounts.FindAsync (request.AccountId);
             //Valideringar av belopp.
@@ -79,7 +80,7 @@ namespace BankBlazor.API.Controllers
 
         // POST,withdraw
         [HttpPost ("Withdraw")]
-        public async Task<ActionResult> Withdraw ( [FromBody] DepositWithdrawDto request )
+        public async Task<ActionResult> Withdraw ( [FromBody] WithdrawDto request )
         {
             //Validering av belopp
             var error = _validationService.ValidateAmount (request.Amount);
@@ -115,7 +116,7 @@ namespace BankBlazor.API.Controllers
 
         // POST, transfer
         [HttpPost ("transfer")]
-        public async Task<ActionResult> Transfer ( [FromBody] TransferDto request )
+        public async Task<ActionResult> Transfer ( [FromBody] TransferPostDto request )
         {
             //Valideringar av belopp och konto för överföring.
             var amountError = _validationService.ValidateAmount (request.Amount);
@@ -159,19 +160,5 @@ namespace BankBlazor.API.Controllers
             return Ok ();
         }
     }
-    //Kanske behöver skapa separata mappar och filer för DTOs.
-    //i så fall tar vi bort de här & refaktorerar koden senare.
-    public class DepositWithdrawDto
-    {
-        public int AccountId { get; set; }
-        public decimal Amount { get; set; }
-        public string Operation { get; set; } = "Withdrawal in Cash";
-    }
-
-    public class TransferDto
-    {
-        public int FromAccountId { get; set; }
-        public int ToAccountId { get; set; }
-        public decimal Amount { get; set; }
-    }
+   
 }

@@ -15,18 +15,16 @@ namespace BankBlazor.API.Controllers
         {
             _context = context;
         }
-        //Get account by id
-        [HttpGet ("{id}")]
-        public async Task<ActionResult<Account>> GetAccount ( int id )
+        // get account balance
+        [HttpGet ("{id}/balance")]
+        public async Task<ActionResult<decimal>> GetAccountBalance ( int id )
         {
-            var account = await _context.Accounts
-                .Include (a => a.Transactions)
-                .FirstOrDefaultAsync (a => a.AccountId == id);
+            var account = await _context.Accounts.FindAsync (id);
 
             if (account == null)
                 return NotFound ();
 
-            return account;
+            return Ok (account.Balance);
         }
 
         //Get: account by customer id
