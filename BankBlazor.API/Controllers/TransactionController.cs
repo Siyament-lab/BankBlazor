@@ -160,19 +160,5 @@ namespace BankBlazor.API.Controllers
             return Ok ();
         }
     }
-    //Kanske behöver skapa separata mappar och filer för DTOs.
-    //i så fall tar vi bort de här & refaktorerar koden senare.
-    //public class DepositWithdrawDto
-    //{
-    //    public int AccountId { get; set; }
-    //    public decimal Amount { get; set; }
-    //    public string Operation { get; set; } = "Withdrawal in Cash";
-    //}
-
-    //public class TransferDto
-    //{
-    //    public int FromAccountId { get; set; }
-    //    public int ToAccountId { get; set; }
-    //    public decimal Amount { get; set; }
-    //}
+   
 }
