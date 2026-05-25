@@ -24,6 +24,18 @@ builder.Services.AddControllers ().AddJsonOptions (options =>
 
 builder.Services.AddScoped<TransactionValidationService> ();
 
+
+//CORS - tilllåter blazor kommunicera med API:et, annars kommer det att blockeras av webbläsaren pga. Same-Origin Policy.
+builder.Services.AddCors (options =>
+{
+    options.AddPolicy ("AllowBlazor", policy =>
+    {
+        policy.WithOrigins ("https://localhost:7249")
+              .AllowAnyHeader ()
+              .AllowAnyMethod ();
+    });
+});
+
 var app = builder.Build ();
 
 // Configure the HTTP request pipeline.
@@ -34,9 +46,8 @@ if (app.Environment.IsDevelopment ())
 }
 
 app.UseHttpsRedirection ();
-
+app.UseCors ("AllowBlazor");
 app.UseAuthorization ();
-
 app.MapControllers ();
 
 app.Run ();
