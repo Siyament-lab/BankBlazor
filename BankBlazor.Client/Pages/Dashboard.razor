@@ -1,0 +1,93 @@
+﻿@page "/dashboard"
+@inject HttpClient Http
+
+<h3>Customer Dashboard</h3>
+
+<div class="search-container">
+    <label>Type Customer ID:</label>
+    <input type="number" @bind="customerId" placeholder="Enter Customer ID" />
+    <button @onclick="SearchCustomer">Search</button>
+</div>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (errorMessage != null)
+{
+    <p class="error">@errorMessage</p>
+}
+else if (customer != null)
+{
+    <div class="customer-profile">
+        <h4>Customer Profile</h4>
+        <p><strong>Name:</strong> @customer.Givenname @customer.Surname</p>
+        <p><strong>Email:</strong> @customer.Emailaddress</p>
+        <p><strong>Phone:</strong> @customer.Telephonenumber</p>
+        <p><strong>Address:</strong> @customer.Streetaddress, @customer.City, @customer.Country</p>
+        <p><strong>Birthday:</strong> @customer.Birthday</p>
+    </div>
+
+    <div class="customer-accounts">
+        <h4>@customer.Givenname's Account /s</h4>
+        @if (accounts != null && accounts.Any ())
+        {
+            <table class="accounts-table">
+                <thead>
+                    <tr>
+                        <th>Account ID</th>
+                        <th>Balance</th>
+                        <th>Frequency</th>
+                        <th>Created</th>
+                        <th>Action</th>
+                       
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var account in accounts)
+                    {
+                        <tr>
+                            <td>@account.AccountId</td>
+                            <td>@account.Balance.ToString("C")</td>
+                            <td>@account.Frequency</td>
+                            <td>@account.Created</td>
+                            @*Fast-track to the transactions page for the searched customer's specific account*@
+                            <td><a href="/transactions/@account.AccountId">Transactions</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            
+        }
+    </div>
+}
+
+@code {
+    private int customerId;
+    private CustomerDto? customer;
+    private List<AccountDto>? accounts;
+    private bool isLoading = false;
+    private string? errorMessage;
+
+    private async Task SearchCustomer ()
+    {
+        isLoading = true;
+        errorMessage = null;
+        customer = null;
+        accounts = null;
+
+        try
+        {
+            customer = await Http.GetFromJsonAsync<CustomerDto> ($"api/Customer/{customerId}");
+            accounts = await Http.GetFromJsonAsync<List<AccountDto>> ($"api/Account?customerId={customerId}");
+        }
+        catch (HttpRequestException)
+        {
+            errorMessage = "Customer not found.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
