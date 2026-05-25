@@ -4,7 +4,7 @@
 <h3>Customer Dashboard</h3>
 
 <div class="search-container">
-    <label>Search by Customer ID:</label>
+    <label>Type Customer ID:</label>
     <input type="number" @bind="customerId" placeholder="Enter Customer ID" />
     <button @onclick="SearchCustomer">Search</button>
 </div>
@@ -39,6 +39,7 @@ else if (customer != null)
                         <th>Balance</th>
                         <th>Frequency</th>
                         <th>Created</th>
+                        <th>Action</th>
                        
                     </tr>
                 </thead>
@@ -50,20 +51,13 @@ else if (customer != null)
                             <td>@account.Balance.ToString("C")</td>
                             <td>@account.Frequency</td>
                             <td>@account.Created</td>
+                            @*Fast-track to the transactions page for the searched customer's specific account*@
+                            <td><a href="/transactions/@account.AccountId">Transactions</a></td>
                         </tr>
                     }
                 </tbody>
             </table>
-            <!--Skapar snabblänkar till kontohändelser -->
-            <div class="action-buttons">
-                @foreach (var account in accounts)
-                {
-                    <a href="/transactions/@account.AccountId">Transactions</a>
-                    <a href="/deposit/@account.AccountId">Deposit</a>
-                    <a href="/withdraw/@account.AccountId">Withdraw</a>
-                    <a href="/transfer/@account.AccountId">Transfer</a>
-                }
-            </div>
+            
         }
     </div>
 }

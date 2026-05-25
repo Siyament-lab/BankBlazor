@@ -1,6 +1,246 @@
 ﻿@page "/transactions"
-<h3>Transactions</h3>
+@page "/transactions/{accountId:int}"
+@inject HttpClient Http
+
+
+
+<div class="tab-buttons">
+    <button class="@(activeTab == "transactions" ? "active" : "")" @onclick='() => activeTab = "transactions"'>Transactions</button>
+    <button class="@(activeTab == "deposit" ? "active" : "")" @onclick='() => activeTab = "deposit"'>Deposit</button>
+    <button class="@(activeTab == "withdraw" ? "active" : "")" @onclick='() => activeTab = "withdraw"'>Withdraw</button>
+    <button class="@(activeTab == "transfer" ? "active" : "")" @onclick='() => activeTab = "transfer"'>Transfer</button>
+</div>
+
+@if (activeTab == "transactions")
+{
+    <div class="search-container">
+        <label>Type Account ID:</label>
+        <input type="number" @bind="searchAccountId" placeholder="Enter Account ID" />
+        <button @onclick="LoadTransactions">Search</button>
+    </div>
+
+    @if (isLoading)
+    {
+        <p>Loading...</p>
+    }
+    else if (errorMessage != null)
+    {
+        <p class="error">@errorMessage</p>
+    }
+    else if (transactions != null && transactions.Any ())
+    {
+        <p><strong>Account ID:</strong> @searchAccountId</p>
+
+        <div class="filter-container">
+            <label>Filter by Type:</label>
+            <select @bind="selectedType">
+                <option value="">All</option>
+                <option value="Credit">Credit</option>
+                <option value="Debit">Debit</option>
+            </select>
+        </div>
+
+        <table class="transactions-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Operation</th>
+                    <th>Amount</th>
+                    <th>Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in transactions.Where (t => string.IsNullOrEmpty (selectedType) || t.Type == selectedType))
+                {
+                    <tr>
+                        <td>@t.Date</td>
+                        <td>@t.Type</td>
+                        <td>@t.Operation</td>
+                        <td>@t.Amount.ToString("C")</td>
+                        <td>@t.Balance.ToString("C")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@if (activeTab == "deposit")
+{
+    <div class="form-container">
+        <h4>Deposit</h4>
+        <label>Account ID:</label>
+        <input type="number" @bind="depositAccountId" placeholder="Enter Account ID" />
+        <label>Amount:</label>
+        <input type="number" @bind="depositAmount" placeholder="Enter Amount" />
+        <button @onclick="DoDeposit">Deposit</button>
+        @if (successMessage != null)
+        {
+            <p class="success">@successMessage</p>
+        }
+        @if (errorMessage != null)
+        {
+            <p class="error">@errorMessage</p>
+        }
+    </div>
+}
+
+@if (activeTab == "withdraw")
+{
+    <div class="form-container">
+        <h4>Withdraw</h4>
+        <label>Account ID:</label>
+        <input type="number" @bind="withdrawAccountId" placeholder="Enter Account ID" />
+        <label>Amount:</label>
+        <input type="number" @bind="withdrawAmount" placeholder="Enter Amount" />
+        <button @onclick="DoWithdraw">Withdraw</button>
+        @if (successMessage != null)
+        {
+            <p class="success">@successMessage</p>
+        }
+        @if (errorMessage != null)
+        {
+            <p class="error">@errorMessage</p>
+        }
+    </div>
+}
+
+@if (activeTab == "transfer")
+{
+    <div class="form-container">
+        <h4>Transfer</h4>
+        <label>From Account ID:</label>
+        <input type="number" @bind="fromAccountId" placeholder="Enter From Account ID" />
+        <label>To Account ID:</label>
+        <input type="number" @bind="toAccountId" placeholder="Enter To Account ID" />
+        <label>Amount:</label>
+        <input type="number" @bind="transferAmount" placeholder="Enter Amount" />
+        <button @onclick="DoTransfer">Transfer</button>
+        @if (successMessage != null)
+        {
+            <p class="success">@successMessage</p>
+        }
+        @if (errorMessage != null)
+        {
+            <p class="error">@errorMessage</p>
+        }
+    </div>
+}
 
 @code {
+    [Parameter]
+    public int AccountId { get; set; }
 
+    private string activeTab = "transactions";
+
+    // Transactions
+    private int searchAccountId;
+    private string selectedType = "";
+    private List<TransactionGetDto>? transactions;
+    private bool isLoading = false;
+
+    // Deposit
+    private int depositAccountId;
+    private decimal depositAmount;
+
+    // Withdraw
+    private int withdrawAccountId;
+    private decimal withdrawAmount;
+
+    // Transfer
+    private int fromAccountId;
+    private int toAccountId;
+    private decimal transferAmount;
+
+    private string? errorMessage;
+    private string? successMessage;
+
+    protected override async Task OnInitializedAsync ()
+    {
+        if (AccountId != 0)
+        {
+            searchAccountId = AccountId;
+            depositAccountId = AccountId;
+            withdrawAccountId = AccountId;
+            fromAccountId = AccountId;
+            await LoadTransactions ();
+        }
+    }
+
+    private async Task LoadTransactions ()
+    {
+        isLoading = true;
+        errorMessage = null;
+        transactions = null;
+
+        try
+        {
+            transactions = await Http.GetFromJsonAsync<List<TransactionGetDto>> ($"api/Transaction/account/{searchAccountId}");
+        }
+        catch (HttpRequestException)
+        {
+            errorMessage = "Could not load transactions for this account.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task DoDeposit ()
+    {
+        errorMessage = null;
+        successMessage = null;
+        try
+        {
+            var response = await Http.PostAsJsonAsync ("api/Transaction/deposit", new { AccountId = depositAccountId, Amount = depositAmount });
+            if (response.IsSuccessStatusCode)
+                successMessage = "Deposit successful!";
+            else
+                errorMessage = await response.Content.ReadAsStringAsync ();
+        }
+        catch
+        {
+            errorMessage = "Deposit failed.";
+        }
+    }
+
+    private async Task DoWithdraw ()
+    {
+        errorMessage = null;
+        successMessage = null;
+        try
+        {
+            var response = await Http.PostAsJsonAsync ("api/Transaction/withdraw", 
+            new { AccountId = withdrawAccountId, Amount = withdrawAmount, Operation = "Withdrawal in Cash" });
+            if (response.IsSuccessStatusCode)
+                successMessage = "Withdrawal successful!";
+            else
+                errorMessage = await response.Content.ReadAsStringAsync ();
+        }
+        catch
+        {
+            errorMessage = "Withdrawal failed.";
+        }
+    }
+
+    private async Task DoTransfer ()
+    {
+        errorMessage = null;
+        successMessage = null;
+        try
+        {
+            var response = await Http.PostAsJsonAsync ("api/Transaction/transfer", 
+            new { FromAccountId = fromAccountId, ToAccountId = toAccountId, Amount = transferAmount });
+            if (response.IsSuccessStatusCode)
+                successMessage = "Transfer successful!";
+            else
+                errorMessage = await response.Content.ReadAsStringAsync ();
+        }
+        catch
+        {
+            errorMessage = "Transfer failed.";
+        }
+    }
 }
