@@ -30,7 +30,8 @@ builder.Services.AddCors (options =>
 {
     options.AddPolicy ("AllowBlazor", policy =>
     {
-        policy.WithOrigins ("https://localhost:7249")
+        policy.WithOrigins ("https://localhost:7249",
+            "https://bankblazor-clientsi-hah9efc7g8e0h4g7.swedencentral-01.azurewebsites.net")
               .AllowAnyHeader ()
               .AllowAnyMethod ();
     });
@@ -38,12 +39,17 @@ builder.Services.AddCors (options =>
 
 var app = builder.Build ();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment ())
-{
-    app.UseSwagger ();
-    app.UseSwaggerUI ();
-}
+//// Configure the HTTP request pipeline endast under utveckling.
+//if (app.Environment.IsDevelopment ())
+//{
+//    app.UseSwagger ();
+//    app.UseSwaggerUI ();
+//}
+app.UseSwagger ();
+app.UseSwaggerUI ();
+//Dirigerar om så att root URL leder till blazor UI sidan, istället för att visa swagger sidan.
+app.MapGet ("/", () => Results.Redirect ("https://bankblazor-clientsi-hah9efc7g8e0h4g7.swedencentral-01.azurewebsites.net"));
+
 
 app.UseHttpsRedirection ();
 app.UseCors ("AllowBlazor");

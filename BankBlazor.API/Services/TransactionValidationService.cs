@@ -9,7 +9,7 @@ namespace BankBlazor.API.Services
                 return "Amount must be greater than zero.";
             //Max gräns 10 000 / transaktion.
             if( amount > 10000 )
-                return "Amount exceeds the maximum limit.";
+                return "Amount exceeds the maximum limit 10 000 kr.";
             return null;
         }
         public string? ValidateTransfer( int fromAccountId, int toAccountId )

@@ -27,6 +27,7 @@ namespace BankBlazor.API.Controllers
             var transactions = await _context.Transactions
                 .Where (t => t.AccountId == accountId)
                 .OrderByDescending (t => t.Date)
+                .ThenByDescending (t => t.TransactionId) // För att säkerställa rätt ordning vid samma datum
                 .ToListAsync ();
 
             if (!transactions.Any ())
