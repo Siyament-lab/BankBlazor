@@ -14,7 +14,8 @@ public class Program
         //builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
         //Lägger till så klienten kan hämta data från API:et
-        builder.Services.AddScoped (sp => new HttpClient { BaseAddress = new Uri ("https://localhost:7017/") });
+        builder.Services.AddScoped (sp => new HttpClient { 
+            BaseAddress = new Uri ("https://banlblazor-api-h7gsddfychb0g6ey.swedencentral-01.azurewebsites.net/") });
 
         await builder.Build().RunAsync();
     }

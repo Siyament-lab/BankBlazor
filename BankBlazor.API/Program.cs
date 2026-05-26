@@ -30,7 +30,8 @@ builder.Services.AddCors (options =>
 {
     options.AddPolicy ("AllowBlazor", policy =>
     {
-        policy.WithOrigins ("https://localhost:7249")
+        policy.WithOrigins ("https://localhost:7249",
+            "https://bankblazor-clientsi-hah9efc7g8e0h4g7.swedencentral-01.azurewebsites.net")
               .AllowAnyHeader ()
               .AllowAnyMethod ();
     });
