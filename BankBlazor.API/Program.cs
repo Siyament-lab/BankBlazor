@@ -39,12 +39,17 @@ builder.Services.AddCors (options =>
 
 var app = builder.Build ();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment ())
-{
-    app.UseSwagger ();
-    app.UseSwaggerUI ();
-}
+//// Configure the HTTP request pipeline endast under utveckling.
+//if (app.Environment.IsDevelopment ())
+//{
+//    app.UseSwagger ();
+//    app.UseSwaggerUI ();
+//}
+app.UseSwagger ();
+app.UseSwaggerUI ();
+//Dirigerar om så att root URL ("/") leder till Swagger
+app.MapGet ("/", () => Results.Redirect ("/swagger"));
+
 
 app.UseHttpsRedirection ();
 app.UseCors ("AllowBlazor");
