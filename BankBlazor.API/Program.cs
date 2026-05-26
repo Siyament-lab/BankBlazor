@@ -47,8 +47,8 @@ var app = builder.Build ();
 //}
 app.UseSwagger ();
 app.UseSwaggerUI ();
-//Dirigerar om så att root URL ("/") leder till Swagger
-app.MapGet ("/", () => Results.Redirect ("/swagger"));
+//Dirigerar om så att root URL leder till blazor UI sidan, istället för att visa swagger sidan.
+app.MapGet ("/", () => Results.Redirect ("https://bankblazor-clientsi-hah9efc7g8e0h4g7.swedencentral-01.azurewebsites.net"));
 
 
 app.UseHttpsRedirection ();
